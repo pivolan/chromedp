@@ -20,13 +20,11 @@ import (
 	"github.com/chromedp/cdproto/log"
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/cdproto/runtime"
-
-	"github.com/chromedp/chromedp/client"
 )
 
 // TargetHandler manages a Chrome DevTools Protocol target.
 type TargetHandler struct {
-	conn client.Transport
+	conn Transport
 
 	// frames is the set of encountered frames.
 	frames map[cdp.FrameID]*cdp.Frame
@@ -63,17 +61,14 @@ type TargetHandler struct {
 }
 
 // NewTargetHandler creates a new handler for the specified client target.
-func NewTargetHandler(t client.Target, logf, debugf, errf func(string, ...interface{})) (*TargetHandler, error) {
-	conn, err := client.Dial(t.GetWebsocketURL())
+func NewTargetHandler(opts ...TargetHandlerOption) (*TargetHandler, error) {
+	conn, err := Dial("")
 	if err != nil {
 		return nil, err
 	}
 
 	return &TargetHandler{
-		conn:   conn,
-		logf:   logf,
-		debugf: debugf,
-		errf:   errf,
+		conn: conn,
 	}, nil
 }
 
@@ -655,3 +650,5 @@ func (h *TargetHandler) domEvent(ctxt context.Context, ev interface{}) {
 
 	op(n)
 }
+
+type TargetHandlerOption interface{}
