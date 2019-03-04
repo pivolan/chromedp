@@ -3,19 +3,26 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/chromedp/chromedp"
 )
 
 func main() {
-	ctxt, cancel := chromedp.NewContext(context.Background(), chromedp.WithURL("https://github.com/"))
+	ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithURL("https://github.com/"))
 	defer cancel()
 
-	if err := chromedp.Run(ctxt, myTask()); err != nil {
+	if err := chromedp.Run(ctx, myTask()); err != nil {
 		log.Fatal(err)
 	}
+	// TODO: make this unnecessary
+	cancel()
+	time.Sleep(time.Millisecond)
 }
 
 func myTask() chromedp.Tasks {
-	return []chromedp.Action{}
+	return []chromedp.Action{
+		chromedp.Navigate(`https://www.google.com`),
+		chromedp.Sleep(10 * time.Second),
+	}
 }
