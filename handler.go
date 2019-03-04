@@ -215,8 +215,7 @@ func (h *TargetHandler) read() (*cdproto.Message, error) {
 
 	// unmarshal
 	msg := new(cdproto.Message)
-	err = json.Unmarshal(buf, msg)
-	if err != nil {
+	if err := json.Unmarshal(buf, msg); err != nil {
 		return nil, err
 	}
 
@@ -423,8 +422,6 @@ func (h *TargetHandler) GetRoot(ctxt context.Context) (*cdp.Node, error) {
 
 // SetActive sets the currently active frame after a successful navigation.
 func (h *TargetHandler) SetActive(ctxt context.Context, id cdp.FrameID) error {
-	var err error
-
 	// get frame
 	f, err := h.WaitFrame(ctxt, id)
 	if err != nil {

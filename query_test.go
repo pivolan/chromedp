@@ -957,10 +957,10 @@ func TestFileUpload(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.Remove(tmpfile.Name())
-	if _, err = tmpfile.WriteString(uploadHTML); err != nil {
+	if _, err := tmpfile.WriteString(uploadHTML); err != nil {
 		t.Fatal(err)
 	}
-	if err = tmpfile.Close(); err != nil {
+	if err := tmpfile.Close(); err != nil {
 		t.Fatal(err)
 	}
 
