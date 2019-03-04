@@ -79,6 +79,7 @@ func (c *Context) startProcess() error {
 		"--no-first-run",
 		"--no-default-browser-check",
 		"--remote-debugging-port=0",
+		"--headless",
 		"--user-data-dir="+dataDir,
 	)
 	stderr, err := cmd.StderrPipe()

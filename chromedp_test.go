@@ -19,42 +19,21 @@ var (
 	//}
 )
 
-func testAllocate(t *testing.T, path string) *Res {
+func testAllocate(t *testing.T, path string) (_ context.Context, cancel func()) {
 	// TODO: cliOpts
-	ctx, cancel := NewContext(poolCtx)
-	_ = cancel // TODO
+	ctx, cancel := NewContext(poolCtx, WithURL(testdataDir+"/"+path))
 
-	if err := WithLogf(t.Logf)(c.c); err != nil {
-		t.Fatalf("could not set logf: %v", err)
-	}
-
-	if err := WithDebugf(t.Logf)(c.c); err != nil {
-		t.Fatalf("could not set debugf: %v", err)
-	}
-
-	if err := WithErrorf(t.Errorf)(c.c); err != nil {
-		t.Fatalf("could not set errorf: %v", err)
-	}
-
-	//h := c.c.GetHandlerByIndex(0)
-	//th, ok := h.(*TargetHandler)
-	//if !ok {
-	//        t.Fatalf("handler is invalid type")
+	//if err := WithLogf(t.Logf)(c.c); err != nil {
+	//        t.Fatalf("could not set logf: %v", err)
+	//}
+	//if err := WithDebugf(t.Logf)(c.c); err != nil {
+	//        t.Fatalf("could not set debugf: %v", err)
+	//}
+	//if err := WithErrorf(t.Errorf)(c.c); err != nil {
+	//        t.Fatalf("could not set errorf: %v", err)
 	//}
 
-	//th.logf, th.debugf = t.Logf, t.Logf
-	//th.errf = func(s string, v ...interface{}) {
-	//        t.Logf("TARGET HANDLER ERROR: "+s, v...)
-	//}
-
-	if path != "" {
-		err = Run(ctx, Navigate(testdataDir+"/"+path))
-		if err != nil {
-			t.Fatalf("could not navigate to testdata/%s: %v", path, err)
-		}
-	}
-
-	return c
+	return ctx, cancel
 }
 
 func TestMain(m *testing.M) {
@@ -91,11 +70,12 @@ func TestMain(m *testing.M) {
 		}
 	*/
 
-	ctx, cancel := NewPool(context.Background())
-	poolCtx = ctx
+	//ctx, cancel := NewPool(context.Background())
+	//poolCtx = ctx
+	poolCtx = context.Background()
 
 	code := m.Run()
 
-	cancel()
+	//cancel()
 	os.Exit(code)
 }
