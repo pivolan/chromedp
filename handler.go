@@ -67,9 +67,16 @@ func NewTargetHandler(urlstr string, opts ...TargetHandlerOption) (*TargetHandle
 		return nil, err
 	}
 
-	return &TargetHandler{
+	h := &TargetHandler{
 		conn: conn,
-	}, nil
+		errf: func(string, ...interface{}) {},
+	}
+
+	for _, o := range opts {
+		o(h)
+	}
+
+	return h, nil
 }
 
 // Run starts the processing of commands and events of the client target
@@ -651,4 +658,4 @@ func (h *TargetHandler) domEvent(ctxt context.Context, ev interface{}) {
 	op(n)
 }
 
-type TargetHandlerOption interface{}
+type TargetHandlerOption func(*TargetHandler)
