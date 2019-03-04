@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"strings"
 )
@@ -19,6 +20,8 @@ type Executor interface {
 type Context struct {
 	// TODO(mvdan): use WithValue instead, for layering?
 	context.Context
+
+	withURL string
 
 	browser *Browser
 	handler *TargetHandler
@@ -113,7 +116,7 @@ func (c *Context) newHandler() error {
 	// TODO: add RemoteAddr() to the Transport interface?
 	conn := c.browser.conn.(*Conn).Conn
 	addr := conn.RemoteAddr()
-	url := "http://" + addr.String() + "/json/new"
+	url := "http://" + addr.String() + "/json/new?" + url.QueryEscape(c.withURL)
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -142,7 +145,5 @@ type ContextOption func(*Context)
 
 // WithURL
 func WithURL(urlstr string) ContextOption {
-	return func(*Context) {
-
-	}
+	return func(c *Context) { c.withURL = urlstr }
 }

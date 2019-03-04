@@ -22,7 +22,6 @@ func main() {
 
 func myTask() chromedp.Tasks {
 	return []chromedp.Action{
-		chromedp.Navigate(`https://www.google.com`),
 		chromedp.Sleep(10 * time.Second),
 	}
 }
