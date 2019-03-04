@@ -28,7 +28,7 @@ func TestMouseClickXY(t *testing.T) {
 	ctx, cancel := testAllocate(t, "input.html")
 	defer cancel()
 
-	err = c.Run(defaultContext, Sleep(100*time.Millisecond))
+	err = Run(ctx, Sleep(100*time.Millisecond))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func TestMouseClickXY(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		err = c.Run(defaultContext, MouseClickXY(test.x, test.y))
+		err = Run(ctx, MouseClickXY(test.x, test.y))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -51,7 +51,7 @@ func TestMouseClickXY(t *testing.T) {
 		time.Sleep(50 * time.Millisecond)
 
 		var xstr, ystr string
-		err = c.Run(defaultContext, Value("#input1", &xstr, ByID))
+		err = Run(ctx, Value("#input1", &xstr, ByID))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -63,7 +63,7 @@ func TestMouseClickXY(t *testing.T) {
 			t.Fatalf("test %d expected x to be: %d, got: %d", i, test.x, x)
 		}
 
-		err = c.Run(defaultContext, Value("#input2", &ystr, ByID))
+		err = Run(ctx, Value("#input2", &ystr, ByID))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -102,7 +102,7 @@ func TestMouseClickNode(t *testing.T) {
 
 			var err error
 			var nodes []*cdp.Node
-			err = c.Run(defaultContext, Nodes(test.sel, &nodes, test.by))
+			err = Run(ctx, Nodes(test.sel, &nodes, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -110,7 +110,7 @@ func TestMouseClickNode(t *testing.T) {
 				t.Fatalf("expected nodes to have exactly 1 element, got: %d", len(nodes))
 			}
 
-			err = c.Run(defaultContext, MouseClickNode(nodes[0], test.opt))
+			err = Run(ctx, MouseClickNode(nodes[0], test.opt))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -118,7 +118,7 @@ func TestMouseClickNode(t *testing.T) {
 			time.Sleep(50 * time.Millisecond)
 
 			var value string
-			err = c.Run(defaultContext, Value("#input3", &value, ByID))
+			err = Run(ctx, Value("#input3", &value, ByID))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -151,7 +151,7 @@ func TestMouseClickOffscreenNode(t *testing.T) {
 
 			var err error
 			var nodes []*cdp.Node
-			err = c.Run(defaultContext, Nodes(test.sel, &nodes, test.by))
+			err = Run(ctx, Nodes(test.sel, &nodes, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -160,7 +160,7 @@ func TestMouseClickOffscreenNode(t *testing.T) {
 			}
 
 			var ok bool
-			err = c.Run(defaultContext, EvaluateAsDevTools(fmt.Sprintf(inViewportJS, nodes[0].FullXPath()), &ok))
+			err = Run(ctx, EvaluateAsDevTools(fmt.Sprintf(inViewportJS, nodes[0].FullXPath()), &ok))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -169,7 +169,7 @@ func TestMouseClickOffscreenNode(t *testing.T) {
 			}
 
 			for i := test.exp; i > 0; i-- {
-				err = c.Run(defaultContext, MouseClickNode(nodes[0]))
+				err = Run(ctx, MouseClickNode(nodes[0]))
 				if err != nil {
 					t.Fatalf("got error: %v", err)
 				}
@@ -178,7 +178,7 @@ func TestMouseClickOffscreenNode(t *testing.T) {
 			time.Sleep(100 * time.Millisecond)
 
 			var value int
-			err = c.Run(defaultContext, Evaluate("window.document.test_i", &value))
+			err = Run(ctx, Evaluate("window.document.test_i", &value))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -213,7 +213,7 @@ func TestKeyAction(t *testing.T) {
 
 			var err error
 			var nodes []*cdp.Node
-			err = c.Run(defaultContext, Nodes(test.sel, &nodes, test.by))
+			err = Run(ctx, Nodes(test.sel, &nodes, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -221,18 +221,18 @@ func TestKeyAction(t *testing.T) {
 				t.Fatalf("expected nodes to have exactly 1 element, got: %d", len(nodes))
 			}
 
-			err = c.Run(defaultContext, Focus(test.sel, test.by))
+			err = Run(ctx, Focus(test.sel, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
-			err = c.Run(defaultContext, KeyAction(test.exp))
+			err = Run(ctx, KeyAction(test.exp))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var value string
-			err = c.Run(defaultContext, Value(test.sel, &value, test.by))
+			err = Run(ctx, Value(test.sel, &value, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -267,7 +267,7 @@ func TestKeyActionNode(t *testing.T) {
 
 			var err error
 			var nodes []*cdp.Node
-			err = c.Run(defaultContext, Nodes(test.sel, &nodes, test.by))
+			err = Run(ctx, Nodes(test.sel, &nodes, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -275,13 +275,13 @@ func TestKeyActionNode(t *testing.T) {
 				t.Fatalf("expected nodes to have exactly 1 element, got: %d", len(nodes))
 			}
 
-			err = c.Run(defaultContext, KeyActionNode(nodes[0], test.exp))
+			err = Run(ctx, KeyActionNode(nodes[0], test.exp))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var value string
-			err = c.Run(defaultContext, Value(test.sel, &value, test.by))
+			err = Run(ctx, Value(test.sel, &value, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}

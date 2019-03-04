@@ -51,8 +51,8 @@ func FromContext(ctx context.Context) *Context {
 	return c
 }
 
-// Run runs the tasks against the provided browser context.
-func Run(ctx context.Context, tasks Tasks) error {
+// Run runs the action against the provided browser context.
+func Run(ctx context.Context, action Action) error {
 	c := FromContext(ctx)
 	if c == nil {
 		return ErrInvalidContext
@@ -67,7 +67,7 @@ func Run(ctx context.Context, tasks Tasks) error {
 			return err
 		}
 	}
-	return tasks.Do(ctx, c.handler)
+	return action.Do(ctx, c.handler)
 }
 
 func (c *Context) startProcess() error {

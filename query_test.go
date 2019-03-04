@@ -37,7 +37,7 @@ func TestNodes(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var nodes []*cdp.Node
-		err = c.Run(defaultContext, Nodes(test.sel, &nodes, test.by))
+		err = Run(ctx, Nodes(test.sel, &nodes, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -67,7 +67,7 @@ func TestNodeIDs(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var ids []cdp.NodeID
-		err = c.Run(defaultContext, NodeIDs(test.sel, &ids, test.by))
+		err = Run(ctx, NodeIDs(test.sel, &ids, test.by))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -93,19 +93,19 @@ func TestFocusBlur(t *testing.T) {
 		{"#input1", ByID},
 	}
 
-	err := c.Run(defaultContext, Click("#input1", ByID))
+	err := Run(ctx, Click("#input1", ByID))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for i, test := range tests {
-		err = c.Run(defaultContext, Focus(test.sel, test.by))
+		err = Run(ctx, Focus(test.sel, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
 
 		var value string
-		err = c.Run(defaultContext, Value(test.sel, &value, test.by))
+		err = Run(ctx, Value(test.sel, &value, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -113,12 +113,12 @@ func TestFocusBlur(t *testing.T) {
 			t.Errorf("test %d expected value is '9999', got: '%s'", i, value)
 		}
 
-		err = c.Run(defaultContext, Blur(test.sel, test.by))
+		err = Run(ctx, Blur(test.sel, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
 
-		err = c.Run(defaultContext, Value(test.sel, &value, test.by))
+		err = Run(ctx, Value(test.sel, &value, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -149,7 +149,7 @@ func TestDimensions(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var model *dom.BoxModel
-		err = c.Run(defaultContext, Dimensions(test.sel, &model))
+		err = Run(ctx, Dimensions(test.sel, &model))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -179,7 +179,7 @@ func TestText(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var text string
-		err = c.Run(defaultContext, Text(test.sel, &text, test.by))
+		err = Run(ctx, Text(test.sel, &text, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -221,7 +221,7 @@ func TestClear(t *testing.T) {
 			defer cancel()
 
 			var val string
-			err := c.Run(defaultContext, Value(test.sel, &val, test.by))
+			err := Run(ctx, Value(test.sel, &val, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -229,12 +229,12 @@ func TestClear(t *testing.T) {
 				t.Errorf("expected `%s` to have non empty value", test.sel)
 			}
 
-			err = c.Run(defaultContext, Clear(test.sel, test.by))
+			err = Run(ctx, Clear(test.sel, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
-			err = c.Run(defaultContext, Value(test.sel, &val, test.by))
+			err = Run(ctx, Value(test.sel, &val, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -267,18 +267,18 @@ func TestReset(t *testing.T) {
 			ctx, cancel := testAllocate(t, "form.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, SetValue(test.sel, test.value, test.by))
+			err := Run(ctx, SetValue(test.sel, test.value, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
-			err = c.Run(defaultContext, Reset(test.sel, test.by))
+			err = Run(ctx, Reset(test.sel, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var value string
-			err = c.Run(defaultContext, Value(test.sel, &value, test.by))
+			err = Run(ctx, Value(test.sel, &value, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -308,7 +308,7 @@ func TestValue(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var value string
-		err = c.Run(defaultContext, Value(test.sel, &value, test.by))
+		err = Run(ctx, Value(test.sel, &value, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -338,13 +338,13 @@ func TestSetValue(t *testing.T) {
 			ctx, cancel := testAllocate(t, "form.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, SetValue(test.sel, "FOOBAR", test.by))
+			err := Run(ctx, SetValue(test.sel, "FOOBAR", test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var value string
-			err = c.Run(defaultContext, Value(test.sel, &value, test.by))
+			err = Run(ctx, Value(test.sel, &value, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -395,7 +395,7 @@ func TestAttributes(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var attrs map[string]string
-		err = c.Run(defaultContext, Attributes(test.sel, &attrs, test.by))
+		err = Run(ctx, Attributes(test.sel, &attrs, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -436,7 +436,7 @@ func TestAttributesAll(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var attrs []map[string]string
-		err = c.Run(defaultContext, AttributesAll(test.sel, &attrs, test.by))
+		err = Run(ctx, AttributesAll(test.sel, &attrs, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -498,13 +498,13 @@ func TestSetAttributes(t *testing.T) {
 			ctx, cancel := testAllocate(t, "image.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, SetAttributes(test.sel, test.attrs, test.by))
+			err := Run(ctx, SetAttributes(test.sel, test.attrs, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var attrs map[string]string
-			err = c.Run(defaultContext, Attributes(test.sel, &attrs, test.by))
+			err = Run(ctx, Attributes(test.sel, &attrs, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -539,7 +539,7 @@ func TestAttributeValue(t *testing.T) {
 		var value string
 		var ok bool
 
-		err = c.Run(defaultContext, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
+		err = Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -576,14 +576,14 @@ func TestSetAttributeValue(t *testing.T) {
 			ctx, cancel := testAllocate(t, "form.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, SetAttributeValue(test.sel, test.attr, test.exp, test.by))
+			err := Run(ctx, SetAttributeValue(test.sel, test.attr, test.exp, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var value string
 			var ok bool
-			err = c.Run(defaultContext, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
+			err = Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -619,14 +619,14 @@ func TestRemoveAttribute(t *testing.T) {
 			ctx, cancel := testAllocate(t, "image.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, RemoveAttribute(test.sel, test.attr))
+			err := Run(ctx, RemoveAttribute(test.sel, test.attr))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var value string
 			var ok bool
-			err = c.Run(defaultContext, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
+			err = Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -657,18 +657,18 @@ func TestClick(t *testing.T) {
 			ctx, cancel := testAllocate(t, "form.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, Click(test.sel, test.by))
+			err := Run(ctx, Click(test.sel, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
-			err = c.Run(defaultContext, WaitVisible("#icon-brankas", ByID))
+			err = Run(ctx, WaitVisible("#icon-brankas", ByID))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var title string
-			err = c.Run(defaultContext, Title(&title))
+			err = Run(ctx, Title(&title))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -699,7 +699,7 @@ func TestDoubleClick(t *testing.T) {
 			ctx, cancel := testAllocate(t, "js.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, DoubleClick(test.sel, test.by))
+			err := Run(ctx, DoubleClick(test.sel, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -707,7 +707,7 @@ func TestDoubleClick(t *testing.T) {
 			time.Sleep(50 * time.Millisecond)
 
 			var value string
-			err = c.Run(defaultContext, Value("#input1", &value, ByID))
+			err = Run(ctx, Value("#input1", &value, ByID))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -742,13 +742,13 @@ func TestSendKeys(t *testing.T) {
 			ctx, cancel := testAllocate(t, "visible.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, SendKeys(test.sel, test.keys, test.by))
+			err := Run(ctx, SendKeys(test.sel, test.keys, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var val string
-			err = c.Run(defaultContext, Value(test.sel, &val, test.by))
+			err = Run(ctx, Value(test.sel, &val, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -778,7 +778,7 @@ func TestScreenshot(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var buf []byte
-		err = c.Run(defaultContext, Screenshot(test.sel, &buf))
+		err = Run(ctx, Screenshot(test.sel, &buf))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -810,18 +810,18 @@ func TestSubmit(t *testing.T) {
 			ctx, cancel := testAllocate(t, "form.html")
 			defer cancel()
 
-			err := c.Run(defaultContext, Submit(test.sel, test.by))
+			err := Run(ctx, Submit(test.sel, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
-			err = c.Run(defaultContext, WaitVisible("#icon-brankas", ByID))
+			err = Run(ctx, WaitVisible("#icon-brankas", ByID))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var title string
-			err = c.Run(defaultContext, Title(&title))
+			err = Run(ctx, Title(&title))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -855,7 +855,7 @@ func TestComputedStyle(t *testing.T) {
 			time.Sleep(50 * time.Millisecond)
 
 			var styles []*css.ComputedProperty
-			err := c.Run(defaultContext, ComputedStyle(test.sel, &styles, test.by))
+			err := Run(ctx, ComputedStyle(test.sel, &styles, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -868,14 +868,14 @@ func TestComputedStyle(t *testing.T) {
 				}
 			}
 
-			err = c.Run(defaultContext, Click("#input1", ByID))
+			err = Run(ctx, Click("#input1", ByID))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			time.Sleep(50 * time.Millisecond)
 
-			err = c.Run(defaultContext, ComputedStyle(test.sel, &styles, test.by))
+			err = Run(ctx, ComputedStyle(test.sel, &styles, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -914,7 +914,7 @@ func TestMatchedStyle(t *testing.T) {
 			time.Sleep(50 * time.Millisecond)
 
 			var styles *css.GetMatchedStylesForNodeReturns
-			err := c.Run(defaultContext, MatchedStyle(test.sel, &styles, test.by))
+			err := Run(ctx, MatchedStyle(test.sel, &styles, test.by))
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
@@ -981,7 +981,7 @@ func TestFileUpload(t *testing.T) {
 			defer cancel()
 
 			var result string
-			err = c.Run(defaultContext, Tasks{
+			err = Run(ctx, Tasks{
 				Navigate(s.URL),
 				test.a,
 				Click(`input[name="submit"]`),
@@ -1014,7 +1014,7 @@ func TestInnerHTML(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var html string
-		err = c.Run(defaultContext, InnerHTML(test.sel, &html))
+		err = Run(ctx, InnerHTML(test.sel, &html))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -1041,7 +1041,7 @@ func TestOuterHTML(t *testing.T) {
 	var err error
 	for i, test := range tests {
 		var html string
-		err = c.Run(defaultContext, OuterHTML(test.sel, &html))
+		err = Run(ctx, OuterHTML(test.sel, &html))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
@@ -1068,7 +1068,7 @@ func TestScrollIntoView(t *testing.T) {
 	}
 	var err error
 	for i, test := range tests {
-		err = c.Run(defaultContext, ScrollIntoView(test.sel, test.by))
+		err = Run(ctx, ScrollIntoView(test.sel, test.by))
 		if err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}

@@ -18,18 +18,18 @@ func TestNavigate(t *testing.T) {
 
 	expurl, exptitle := testdataDir+"/image.html", "this is title"
 
-	err = c.Run(defaultContext, Navigate(expurl))
+	err = Run(ctx, Navigate(expurl))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.Run(defaultContext, WaitVisible(`#icon-brankas`, ByID))
+	err = Run(ctx, WaitVisible(`#icon-brankas`, ByID))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	var urlstr string
-	err = c.Run(defaultContext, Location(&urlstr))
+	err = Run(ctx, Location(&urlstr))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func TestNavigate(t *testing.T) {
 	}
 
 	var title string
-	err = c.Run(defaultContext, Title(&title))
+	err = Run(ctx, Title(&title))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +63,7 @@ func TestNavigationEntries(t *testing.T) {
 	var entries []*page.NavigationEntry
 	var index int64
 
-	err = c.Run(defaultContext, NavigationEntries(&index, &entries))
+	err = Run(ctx, NavigationEntries(&index, &entries))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,14 +77,14 @@ func TestNavigationEntries(t *testing.T) {
 
 	expIdx, expEntries := 1, 2
 	for i, url := range tests {
-		err = c.Run(defaultContext, Navigate(testdataDir+"/"+url))
+		err = Run(ctx, Navigate(testdataDir+"/"+url))
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		time.Sleep(50 * time.Millisecond)
 
-		err = c.Run(defaultContext, NavigationEntries(&index, &entries))
+		err = Run(ctx, NavigationEntries(&index, &entries))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -111,26 +111,26 @@ func TestNavigateToHistoryEntry(t *testing.T) {
 
 	var entries []*page.NavigationEntry
 	var index int64
-	err = c.Run(defaultContext, Navigate(testdataDir+"/image.html"))
+	err = Run(ctx, Navigate(testdataDir+"/image.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	time.Sleep(50 * time.Millisecond)
 
-	err = c.Run(defaultContext, NavigationEntries(&index, &entries))
+	err = Run(ctx, NavigationEntries(&index, &entries))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
+	err = Run(ctx, Navigate(testdataDir+"/form.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	time.Sleep(50 * time.Millisecond)
 
-	err = c.Run(defaultContext, NavigateToHistoryEntry(entries[index].ID))
+	err = Run(ctx, NavigateToHistoryEntry(entries[index].ID))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +138,7 @@ func TestNavigateToHistoryEntry(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var title string
-	err = c.Run(defaultContext, Title(&title))
+	err = Run(ctx, Title(&title))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,7 +155,7 @@ func TestNavigateBack(t *testing.T) {
 	ctx, cancel := testAllocate(t, "")
 	defer cancel()
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
+	err = Run(ctx, Navigate(testdataDir+"/form.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,19 +163,19 @@ func TestNavigateBack(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var exptitle string
-	err = c.Run(defaultContext, Title(&exptitle))
+	err = Run(ctx, Title(&exptitle))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/image.html"))
+	err = Run(ctx, Navigate(testdataDir+"/image.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	time.Sleep(50 * time.Millisecond)
 
-	err = c.Run(defaultContext, NavigateBack())
+	err = Run(ctx, NavigateBack())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func TestNavigateBack(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var title string
-	err = c.Run(defaultContext, Title(&title))
+	err = Run(ctx, Title(&title))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,14 +200,14 @@ func TestNavigateForward(t *testing.T) {
 	ctx, cancel := testAllocate(t, "")
 	defer cancel()
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
+	err = Run(ctx, Navigate(testdataDir+"/form.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	time.Sleep(50 * time.Millisecond)
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/image.html"))
+	err = Run(ctx, Navigate(testdataDir+"/image.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,19 +215,19 @@ func TestNavigateForward(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var exptitle string
-	err = c.Run(defaultContext, Title(&exptitle))
+	err = Run(ctx, Title(&exptitle))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.Run(defaultContext, NavigateBack())
+	err = Run(ctx, NavigateBack())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	time.Sleep(50 * time.Millisecond)
 
-	err = c.Run(defaultContext, NavigateForward())
+	err = Run(ctx, NavigateForward())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -235,7 +235,7 @@ func TestNavigateForward(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var title string
-	err = c.Run(defaultContext, Title(&title))
+	err = Run(ctx, Title(&title))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -252,12 +252,12 @@ func TestStop(t *testing.T) {
 	ctx, cancel := testAllocate(t, "")
 	defer cancel()
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
+	err = Run(ctx, Navigate(testdataDir+"/form.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.Run(defaultContext, Stop())
+	err = Run(ctx, Stop())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -271,7 +271,7 @@ func TestReload(t *testing.T) {
 	ctx, cancel := testAllocate(t, "")
 	defer cancel()
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
+	err = Run(ctx, Navigate(testdataDir+"/form.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -279,12 +279,12 @@ func TestReload(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var exptitle string
-	err = c.Run(defaultContext, Title(&exptitle))
+	err = Run(ctx, Title(&exptitle))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.Run(defaultContext, Reload())
+	err = Run(ctx, Reload())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -292,7 +292,7 @@ func TestReload(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var title string
-	err = c.Run(defaultContext, Title(&title))
+	err = Run(ctx, Title(&title))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -309,7 +309,7 @@ func TestCaptureScreenshot(t *testing.T) {
 	ctx, cancel := testAllocate(t, "")
 	defer cancel()
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/image.html"))
+	err = Run(ctx, Navigate(testdataDir+"/image.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -317,7 +317,7 @@ func TestCaptureScreenshot(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var buf []byte
-	err = c.Run(defaultContext, CaptureScreenshot(&buf))
+	err = Run(ctx, CaptureScreenshot(&buf))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -337,12 +337,12 @@ func TestCaptureScreenshot(t *testing.T) {
 	defer cancel()
 
 	var scriptID page.ScriptIdentifier
-	err = c.Run(defaultContext, AddOnLoadScript(`window.alert("TEST")`, &scriptID))
+	err = Run(ctx, AddOnLoadScript(`window.alert("TEST")`, &scriptID))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
+	err = Run(ctx, Navigate(testdataDir+"/form.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -364,7 +364,7 @@ func TestRemoveOnLoadScript(t *testing.T) {
 	defer cancel()
 
 	var scriptID page.ScriptIdentifier
-	err = c.Run(defaultContext, AddOnLoadScript(`window.alert("TEST")`, &scriptID))
+	err = Run(ctx, AddOnLoadScript(`window.alert("TEST")`, &scriptID))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -373,12 +373,12 @@ func TestRemoveOnLoadScript(t *testing.T) {
 		t.Fatal("got empty script ID")
 	}
 
-	err = c.Run(defaultContext, RemoveOnLoadScript(scriptID))
+	err = Run(ctx, RemoveOnLoadScript(scriptID))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
+	err = Run(ctx, Navigate(testdataDir+"/form.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -395,7 +395,7 @@ func TestLocation(t *testing.T) {
 	ctx, cancel := testAllocate(t, "")
 	defer cancel()
 
-	err = c.Run(defaultContext, Navigate(expurl))
+	err = Run(ctx, Navigate(expurl))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -403,7 +403,7 @@ func TestLocation(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var urlstr string
-	err = c.Run(defaultContext, Location(&urlstr))
+	err = Run(ctx, Location(&urlstr))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -422,7 +422,7 @@ func TestTitle(t *testing.T) {
 	ctx, cancel := testAllocate(t, "")
 	defer cancel()
 
-	err = c.Run(defaultContext, Navigate(expurl))
+	err = Run(ctx, Navigate(expurl))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -430,7 +430,7 @@ func TestTitle(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	var title string
-	err = c.Run(defaultContext, Title(&title))
+	err = Run(ctx, Title(&title))
 	if err != nil {
 		t.Fatal(err)
 	}
