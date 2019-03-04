@@ -20,8 +20,8 @@ import (
 func TestNodes(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "table.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "table.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -50,8 +50,8 @@ func TestNodes(t *testing.T) {
 func TestNodeIDs(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "table.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "table.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -80,8 +80,8 @@ func TestNodeIDs(t *testing.T) {
 func TestFocusBlur(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "js.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "js.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -131,8 +131,8 @@ func TestFocusBlur(t *testing.T) {
 func TestDimensions(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "image.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "image.html")
+	defer cancel()
 
 	tests := []struct {
 		sel    string
@@ -162,8 +162,8 @@ func TestDimensions(t *testing.T) {
 func TestText(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "form.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "form.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -217,8 +217,8 @@ func TestClear(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "form.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "form.html")
+			defer cancel()
 
 			var val string
 			err := c.Run(defaultContext, Value(test.sel, &val, test.by))
@@ -264,8 +264,8 @@ func TestReset(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "form.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "form.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, SetValue(test.sel, test.value, test.by))
 			if err != nil {
@@ -292,8 +292,8 @@ func TestReset(t *testing.T) {
 func TestValue(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "form.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "form.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -335,8 +335,8 @@ func TestSetValue(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "form.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "form.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, SetValue(test.sel, "FOOBAR", test.by))
 			if err != nil {
@@ -358,8 +358,8 @@ func TestSetValue(t *testing.T) {
 func TestAttributes(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "image.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "image.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -409,8 +409,8 @@ func TestAttributes(t *testing.T) {
 func TestAttributesAll(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "image.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "image.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -495,8 +495,8 @@ func TestSetAttributes(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "image.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "image.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, SetAttributes(test.sel, test.attrs, test.by))
 			if err != nil {
@@ -519,8 +519,8 @@ func TestSetAttributes(t *testing.T) {
 func TestAttributeValue(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "image.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "image.html")
+	defer cancel()
 
 	tests := []struct {
 		sel  string
@@ -573,8 +573,8 @@ func TestSetAttributeValue(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "form.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "form.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, SetAttributeValue(test.sel, test.attr, test.exp, test.by))
 			if err != nil {
@@ -616,8 +616,8 @@ func TestRemoveAttribute(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "image.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "image.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, RemoveAttribute(test.sel, test.attr))
 			if err != nil {
@@ -654,8 +654,8 @@ func TestClick(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "form.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "form.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, Click(test.sel, test.by))
 			if err != nil {
@@ -696,8 +696,8 @@ func TestDoubleClick(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "js.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "js.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, DoubleClick(test.sel, test.by))
 			if err != nil {
@@ -739,8 +739,8 @@ func TestSendKeys(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "visible.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "visible.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, SendKeys(test.sel, test.keys, test.by))
 			if err != nil {
@@ -762,8 +762,8 @@ func TestSendKeys(t *testing.T) {
 func TestScreenshot(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "image.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "image.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -807,8 +807,8 @@ func TestSubmit(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "form.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "form.html")
+			defer cancel()
 
 			err := c.Run(defaultContext, Submit(test.sel, test.by))
 			if err != nil {
@@ -849,8 +849,8 @@ func TestComputedStyle(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "js.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "js.html")
+			defer cancel()
 
 			time.Sleep(50 * time.Millisecond)
 
@@ -908,8 +908,8 @@ func TestMatchedStyle(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "js.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "js.html")
+			defer cancel()
 
 			time.Sleep(50 * time.Millisecond)
 
@@ -977,8 +977,8 @@ func TestFileUpload(t *testing.T) {
 			// parallel
 			//t.Parallel()
 
-			c := testAllocate(t, "")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "")
+			defer cancel()
 
 			var result string
 			err = c.Run(defaultContext, Tasks{
@@ -1000,8 +1000,8 @@ func TestFileUpload(t *testing.T) {
 func TestInnerHTML(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "table.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "table.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -1027,8 +1027,8 @@ func TestInnerHTML(t *testing.T) {
 func TestOuterHTML(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "table.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "table.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string
@@ -1054,8 +1054,8 @@ func TestOuterHTML(t *testing.T) {
 func TestScrollIntoView(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "image.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "image.html")
+	defer cancel()
 
 	tests := []struct {
 		sel string

@@ -13,8 +13,8 @@ func TestNavigate(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	expurl, exptitle := testdataDir+"/image.html", "this is title"
 
@@ -52,8 +52,8 @@ func TestNavigationEntries(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	tests := []string{
 		"form.html",
@@ -106,8 +106,8 @@ func TestNavigateToHistoryEntry(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	var entries []*page.NavigationEntry
 	var index int64
@@ -152,8 +152,8 @@ func TestNavigateBack(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
 	if err != nil {
@@ -197,8 +197,8 @@ func TestNavigateForward(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
 	if err != nil {
@@ -249,8 +249,8 @@ func TestStop(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
 	if err != nil {
@@ -268,8 +268,8 @@ func TestReload(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	err = c.Run(defaultContext, Navigate(testdataDir+"/form.html"))
 	if err != nil {
@@ -306,8 +306,8 @@ func TestCaptureScreenshot(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	err = c.Run(defaultContext, Navigate(testdataDir+"/image.html"))
 	if err != nil {
@@ -333,8 +333,8 @@ func TestCaptureScreenshot(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	var scriptID page.ScriptIdentifier
 	err = c.Run(defaultContext, AddOnLoadScript(`window.alert("TEST")`, &scriptID))
@@ -360,8 +360,8 @@ func TestRemoveOnLoadScript(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	var scriptID page.ScriptIdentifier
 	err = c.Run(defaultContext, AddOnLoadScript(`window.alert("TEST")`, &scriptID))
@@ -392,8 +392,8 @@ func TestLocation(t *testing.T) {
 	var err error
 	expurl := testdataDir + "/form.html"
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	err = c.Run(defaultContext, Navigate(expurl))
 	if err != nil {
@@ -419,8 +419,8 @@ func TestTitle(t *testing.T) {
 	var err error
 	expurl, exptitle := testdataDir+"/image.html", "this is title"
 
-	c := testAllocate(t, "")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "")
+	defer cancel()
 
 	err = c.Run(defaultContext, Navigate(expurl))
 	if err != nil {

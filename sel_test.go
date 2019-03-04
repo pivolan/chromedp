@@ -9,8 +9,8 @@ import (
 func TestWaitReady(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "js.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "js.html")
+	defer cancel()
 
 	var nodeIDs []cdp.NodeID
 	err := c.Run(defaultContext, NodeIDs("#input2", &nodeIDs, ByID))
@@ -36,8 +36,8 @@ func TestWaitReady(t *testing.T) {
 func TestWaitVisible(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "js.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "js.html")
+	defer cancel()
 
 	var nodeIDs []cdp.NodeID
 	err := c.Run(defaultContext, NodeIDs("#input2", &nodeIDs, ByID))
@@ -63,8 +63,8 @@ func TestWaitVisible(t *testing.T) {
 func TestWaitNotVisible(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "js.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "js.html")
+	defer cancel()
 
 	var nodeIDs []cdp.NodeID
 	err := c.Run(defaultContext, NodeIDs("#input2", &nodeIDs, ByID))
@@ -95,8 +95,8 @@ func TestWaitNotVisible(t *testing.T) {
 func TestWaitEnabled(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "js.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "js.html")
+	defer cancel()
 
 	var attr string
 	var ok bool
@@ -143,8 +143,8 @@ func TestWaitEnabled(t *testing.T) {
 func TestWaitSelected(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "js.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "js.html")
+	defer cancel()
 
 	err := c.Run(defaultContext, Click("#button3", ByID))
 	if err != nil {
@@ -188,8 +188,8 @@ func TestWaitSelected(t *testing.T) {
 func TestWaitNotPresent(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "js.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "js.html")
+	defer cancel()
 
 	err := c.Run(defaultContext, WaitVisible("#input3", ByID))
 	if err != nil {
@@ -210,8 +210,8 @@ func TestWaitNotPresent(t *testing.T) {
 func TestAtLeast(t *testing.T) {
 	t.Parallel()
 
-	c := testAllocate(t, "js.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "js.html")
+	defer cancel()
 
 	var nodes []*cdp.Node
 	err := c.Run(defaultContext, Nodes("//input", &nodes, AtLeast(3)))

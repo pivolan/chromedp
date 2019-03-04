@@ -25,8 +25,8 @@ func TestMouseClickXY(t *testing.T) {
 
 	var err error
 
-	c := testAllocate(t, "input.html")
-	defer c.Release()
+	ctx, cancel := testAllocate(t, "input.html")
+	defer cancel()
 
 	err = c.Run(defaultContext, Sleep(100*time.Millisecond))
 	if err != nil {
@@ -97,8 +97,8 @@ func TestMouseClickNode(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "input.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "input.html")
+			defer cancel()
 
 			var err error
 			var nodes []*cdp.Node
@@ -146,8 +146,8 @@ func TestMouseClickOffscreenNode(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "input.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "input.html")
+			defer cancel()
 
 			var err error
 			var nodes []*cdp.Node
@@ -208,8 +208,8 @@ func TestKeyAction(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "input.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "input.html")
+			defer cancel()
 
 			var err error
 			var nodes []*cdp.Node
@@ -262,8 +262,8 @@ func TestKeyActionNode(t *testing.T) {
 		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
 			t.Parallel()
 
-			c := testAllocate(t, "input.html")
-			defer c.Release()
+			ctx, cancel := testAllocate(t, "input.html")
+			defer cancel()
 
 			var err error
 			var nodes []*cdp.Node
