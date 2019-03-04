@@ -61,8 +61,8 @@ type TargetHandler struct {
 }
 
 // NewTargetHandler creates a new handler for the specified client target.
-func NewTargetHandler(opts ...TargetHandlerOption) (*TargetHandler, error) {
-	conn, err := Dial("")
+func NewTargetHandler(urlstr string, opts ...TargetHandlerOption) (*TargetHandler, error) {
+	conn, err := Dial(urlstr)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +204,7 @@ func (h *TargetHandler) read() (*cdproto.Message, error) {
 		return nil, err
 	}
 
-	h.debugf("-> %s", string(buf))
+	//h.debugf("-> %s", string(buf))
 
 	// unmarshal
 	msg := new(cdproto.Message)
@@ -310,7 +310,7 @@ func (h *TargetHandler) processCommand(cmd *cdproto.Message) error {
 		return err
 	}
 
-	h.debugf("<- %s", string(buf))
+	//h.debugf("<- %s", string(buf))
 
 	return h.conn.Write(buf)
 }

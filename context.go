@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	"os/exec"
 	"strings"
 )
@@ -20,7 +21,7 @@ type Context struct {
 	context.Context
 
 	browser *Browser
-	conn    Transport
+	handler *TargetHandler
 
 	logf func(string, ...interface{})
 	errf func(string, ...interface{})
@@ -58,9 +59,12 @@ func Run(ctx context.Context, tasks Tasks) error {
 			return err
 		}
 	}
-	return nil
-	var th *TargetHandler
-	return tasks.Do(ctx, th)
+	if c.handler == nil {
+		if err := c.newHandler(); err != nil {
+			return err
+		}
+	}
+	return tasks.Do(ctx, c.handler)
 }
 
 func (c *Context) startProcess() error {
@@ -103,6 +107,34 @@ func (c *Context) startProcess() error {
 		return err
 	}
 	return nil
+}
+
+func (c *Context) newHandler() error {
+	// TODO: add RemoteAddr() to the Transport interface?
+	conn := c.browser.conn.(*Conn).Conn
+	addr := conn.RemoteAddr()
+	url := "http://" + addr.String() + "/json/new"
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	var wurl withWebsocketURL
+	if err := json.NewDecoder(resp.Body).Decode(&wurl); err != nil {
+		return err
+	}
+	c.handler, err = NewTargetHandler(wurl.WebsocketURL)
+	if err != nil {
+		return err
+	}
+	if err := c.handler.Run(c.Context); err != nil {
+		return err
+	}
+	return nil
+}
+
+type withWebsocketURL struct {
+	WebsocketURL string `json:"webSocketDebuggerUrl"`
 }
 
 // ContextOption
