@@ -8,10 +8,18 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
 type Pool interface {
+	// Allocate creates a new browser from the pool. It can be cancelled via
+	// the provided context, at which point all the resources used by the
+	// browser (such as temporary directories) will be cleaned up.
 	Allocate(context.Context) (*Browser, error)
+
+	// Wait can be called after cancelling a pool's context, to block until
+	// all the pool's resources have been cleaned up.
+	Wait()
 }
 
 func NewPool(parent context.Context, opts ...PoolOption) (context.Context, context.CancelFunc) {
@@ -19,7 +27,7 @@ func NewPool(parent context.Context, opts ...PoolOption) (context.Context, conte
 	c := &Context{}
 
 	for _, o := range opts {
-		o(&c.pool)
+		o(&c.Pool)
 	}
 
 	ctx = context.WithValue(ctx, contextKey{}, c)
@@ -31,7 +39,7 @@ type PoolOption func(*Pool)
 func WithExecPool(opts ...ExecPoolOption) func(*Pool) {
 	return func(p *Pool) {
 		ep := &ExecPool{
-			flags: make(map[string]interface{}),
+			initFlags: make(map[string]interface{}),
 		}
 		for _, o := range opts {
 			o(ep)
@@ -43,27 +51,52 @@ func WithExecPool(opts ...ExecPoolOption) func(*Pool) {
 type ExecPoolOption func(*ExecPool)
 
 type ExecPool struct {
-	flags map[string]interface{}
+	initFlags map[string]interface{}
+
+	dataDirs map[*Browser]string
+	wg       sync.WaitGroup
 }
 
 func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
-	if _, ok := p.flags["user-data-dir"]; !ok {
-		dataDir, err := ioutil.TempDir("", "chromedp-runner")
+	removeDir := false
+	var cmd *exec.Cmd
+
+	// TODO: figure out a nicer way to do this
+	flags := make(map[string]interface{})
+	for name, value := range p.initFlags {
+		flags[name] = value
+	}
+
+	dataDir, ok := flags["user-data-dir"].(string)
+	if !ok {
+		tempDir, err := ioutil.TempDir("", "chromedp-runner")
 		if err != nil {
 			return nil, err
 		}
-		go func() {
-			<-ctx.Done()
-			os.RemoveAll(dataDir)
-		}()
-		p.flags["user-data-dir"] = dataDir
+		flags["user-data-dir"] = tempDir
+		dataDir = tempDir
+		removeDir = true
 	}
 
-	p.flags["remote-debugging-port"] = "0"
+	p.wg.Add(1)
+	go func() {
+		<-ctx.Done()
+		// First wait for the process to be finished.
+		if cmd != nil {
+			cmd.Wait()
+		}
+		// Then delete the temporary user data directory, if needed.
+		if removeDir {
+			os.RemoveAll(dataDir)
+		}
+		p.wg.Done()
+	}()
+
+	flags["remote-debugging-port"] = "0"
 
 	prog := "chromium"
 	args := []string{}
-	for name, value := range p.flags {
+	for name, value := range flags {
 		switch value := value.(type) {
 		case string:
 			args = append(args, fmt.Sprintf("--%s=%s", name, value))
@@ -76,7 +109,7 @@ func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
 		}
 	}
 
-	cmd := exec.CommandContext(ctx, prog, args...)
+	cmd = exec.CommandContext(ctx, prog, args...)
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return nil, err
@@ -101,7 +134,16 @@ func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
 	}
 	stderr.Close()
 
-	return NewBrowser(wsURL)
+	browser, err := NewBrowser(wsURL)
+	if err != nil {
+		return nil, err
+	}
+	browser.UserDataDir = dataDir
+	return browser, nil
+}
+
+func (p *ExecPool) Wait() {
+	p.wg.Wait()
 }
 
 // Flag is a generic command line option to pass a flag to Chrome. If the value
@@ -109,7 +151,7 @@ func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
 // passed as --name if value is true.
 func Flag(name string, value interface{}) ExecPoolOption {
 	return func(p *ExecPool) {
-		p.flags[name] = value
+		p.initFlags[name] = value
 	}
 }
 

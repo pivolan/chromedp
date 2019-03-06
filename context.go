@@ -14,14 +14,23 @@ type Executor interface {
 
 // Context
 type Context struct {
+	Pool Pool
+
 	withURL string
 
-	pool    Pool
 	browser *Browser
 	handler *TargetHandler
 
 	logf func(string, ...interface{})
 	errf func(string, ...interface{})
+}
+
+// Wait can be called after cancelling the context containing Context, to block
+// until all the underlying resources have been cleaned up.
+func (c *Context) Wait() {
+	if c.Pool != nil {
+		c.Pool.Wait()
+	}
 }
 
 // NewContext creates a browser context using the parent context.
@@ -30,18 +39,18 @@ func NewContext(parent context.Context, opts ...ContextOption) (context.Context,
 
 	c := &Context{}
 	if pc := FromContext(parent); pc != nil {
-		c.pool = pc.pool
+		c.Pool = pc.Pool
 	}
 
 	for _, o := range opts {
 		o(c)
 	}
-	if c.pool == nil {
+	if c.Pool == nil {
 		WithExecPool(
 			NoFirstRun,
 			NoDefaultBrowserCheck,
 			Headless,
-		)(&c.pool)
+		)(&c.Pool)
 	}
 
 	ctx = context.WithValue(ctx, contextKey{}, c)
@@ -59,11 +68,11 @@ func FromContext(ctx context.Context) *Context {
 // Run runs the action against the provided browser context.
 func Run(ctx context.Context, action Action) error {
 	c := FromContext(ctx)
-	if c == nil || c.pool == nil {
+	if c == nil || c.Pool == nil {
 		return ErrInvalidContext
 	}
 	if c.browser == nil {
-		browser, err := c.pool.Allocate(ctx)
+		browser, err := c.Pool.Allocate(ctx)
 		if err != nil {
 			return err
 		}

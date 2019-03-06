@@ -19,6 +19,8 @@ import (
 // the browser process runner, WebSocket clients, associated targets, and
 // network, page, and DOM events.
 type Browser struct {
+	UserDataDir string
+
 	conn Transport
 
 	// next is the next message id.

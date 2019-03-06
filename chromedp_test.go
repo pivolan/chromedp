@@ -21,7 +21,6 @@ var (
 )
 
 func testAllocate(t *testing.T, path string) (_ context.Context, cancel func()) {
-	// TODO: cliOpts
 	ctx, cancel := NewContext(poolCtx, WithURL(testdataDir+"/"+path))
 
 	//if err := WithLogf(t.Logf)(c.c); err != nil {
@@ -77,5 +76,6 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	cancel()
+	FromContext(ctx).Wait()
 	os.Exit(code)
 }
