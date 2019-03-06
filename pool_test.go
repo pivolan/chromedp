@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-func TestExecPool(t *testing.T) {
+func TestExecAllocator(t *testing.T) {
 	t.Parallel()
 
-	poolCtx, cancel := NewPool(context.Background(), WithExecPool(poolOpts...))
+	poolCtx, cancel := NewAllocator(context.Background(), WithExecAllocator(poolOpts...))
 	defer cancel()
 
 	// TODO: test that multiple child contexts are run in different
@@ -28,7 +28,7 @@ func TestExecPool(t *testing.T) {
 	}
 
 	tempDir := FromContext(taskCtx).browser.UserDataDir
-	pool := FromContext(taskCtx).Pool
+	pool := FromContext(taskCtx).Allocator
 
 	cancel()
 	pool.Wait()

@@ -14,7 +14,7 @@ type Executor interface {
 
 // Context
 type Context struct {
-	Pool Pool
+	Allocator Allocator
 
 	withURL string
 
@@ -28,8 +28,8 @@ type Context struct {
 // Wait can be called after cancelling the context containing Context, to block
 // until all the underlying resources have been cleaned up.
 func (c *Context) Wait() {
-	if c.Pool != nil {
-		c.Pool.Wait()
+	if c.Allocator != nil {
+		c.Allocator.Wait()
 	}
 }
 
@@ -39,18 +39,18 @@ func NewContext(parent context.Context, opts ...ContextOption) (context.Context,
 
 	c := &Context{}
 	if pc := FromContext(parent); pc != nil {
-		c.Pool = pc.Pool
+		c.Allocator = pc.Allocator
 	}
 
 	for _, o := range opts {
 		o(c)
 	}
-	if c.Pool == nil {
-		WithExecPool(
+	if c.Allocator == nil {
+		WithExecAllocator(
 			NoFirstRun,
 			NoDefaultBrowserCheck,
 			Headless,
-		)(&c.Pool)
+		)(&c.Allocator)
 	}
 
 	ctx = context.WithValue(ctx, contextKey{}, c)
@@ -68,11 +68,11 @@ func FromContext(ctx context.Context) *Context {
 // Run runs the action against the provided browser context.
 func Run(ctx context.Context, action Action) error {
 	c := FromContext(ctx)
-	if c == nil || c.Pool == nil {
+	if c == nil || c.Allocator == nil {
 		return ErrInvalidContext
 	}
 	if c.browser == nil {
-		browser, err := c.Pool.Allocate(ctx)
+		browser, err := c.Allocator.Allocate(ctx)
 		if err != nil {
 			return err
 		}

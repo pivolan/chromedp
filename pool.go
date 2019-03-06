@@ -11,7 +11,7 @@ import (
 	"sync"
 )
 
-type Pool interface {
+type Allocator interface {
 	// Allocate creates a new browser from the pool. It can be cancelled via
 	// the provided context, at which point all the resources used by the
 	// browser (such as temporary directories) will be cleaned up.
@@ -22,23 +22,23 @@ type Pool interface {
 	Wait()
 }
 
-func NewPool(parent context.Context, opts ...PoolOption) (context.Context, context.CancelFunc) {
+func NewAllocator(parent context.Context, opts ...AllocatorOption) (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithCancel(parent)
 	c := &Context{}
 
 	for _, o := range opts {
-		o(&c.Pool)
+		o(&c.Allocator)
 	}
 
 	ctx = context.WithValue(ctx, contextKey{}, c)
 	return ctx, cancel
 }
 
-type PoolOption func(*Pool)
+type AllocatorOption func(*Allocator)
 
-func WithExecPool(opts ...ExecPoolOption) func(*Pool) {
-	return func(p *Pool) {
-		ep := &ExecPool{
+func WithExecAllocator(opts ...ExecAllocatorOption) func(*Allocator) {
+	return func(p *Allocator) {
+		ep := &ExecAllocator{
 			initFlags: make(map[string]interface{}),
 		}
 		for _, o := range opts {
@@ -51,16 +51,16 @@ func WithExecPool(opts ...ExecPoolOption) func(*Pool) {
 	}
 }
 
-type ExecPoolOption func(*ExecPool)
+type ExecAllocatorOption func(*ExecAllocator)
 
-type ExecPool struct {
+type ExecAllocator struct {
 	execPath  string
 	initFlags map[string]interface{}
 
 	wg sync.WaitGroup
 }
 
-func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
+func (p *ExecAllocator) Allocate(ctx context.Context) (*Browser, error) {
 	removeDir := false
 	var cmd *exec.Cmd
 
@@ -144,12 +144,12 @@ func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
 	return browser, nil
 }
 
-func (p *ExecPool) Wait() {
+func (p *ExecAllocator) Wait() {
 	p.wg.Wait()
 }
 
-func ExecPath(path string) ExecPoolOption {
-	return func(p *ExecPool) {
+func ExecPath(path string) ExecAllocatorOption {
+	return func(p *ExecAllocator) {
 		if fullPath, _ := exec.LookPath(path); fullPath != "" {
 			// Convert to an absolute path if possible, to avoid
 			// repeated LookPath calls in each Allocate.
@@ -162,7 +162,7 @@ func ExecPath(path string) ExecPoolOption {
 // findExecPath tries to find the Chrome browser somewhere in the current
 // system. It performs a rather agressive search, which is the same in all
 // systems. That may make it a bit slow, but it will only be run when creating a
-// new ExecPool.
+// new ExecAllocator.
 func findExecPath() string {
 	for _, path := range [...]string{
 		// Unix-like
@@ -196,8 +196,8 @@ func findExecPath() string {
 // Flag is a generic command line option to pass a flag to Chrome. If the value
 // is a string, it will be passed as --name=value. If it's a boolean, it will be
 // passed as --name if value is true.
-func Flag(name string, value interface{}) ExecPoolOption {
-	return func(p *ExecPool) {
+func Flag(name string, value interface{}) ExecAllocatorOption {
+	return func(p *ExecAllocator) {
 		p.initFlags[name] = value
 	}
 }
@@ -207,49 +207,49 @@ func Flag(name string, value interface{}) ExecPoolOption {
 // Note: set this option to manually set the profile directory used by Chrome.
 // When this is not set, then a default path will be created in the /tmp
 // directory.
-func UserDataDir(dir string) ExecPoolOption {
+func UserDataDir(dir string) ExecAllocatorOption {
 	return Flag("user-data-dir", dir)
 }
 
 // ProxyServer is the command line option to set the outbound proxy server.
-func ProxyServer(proxy string) ExecPoolOption {
+func ProxyServer(proxy string) ExecAllocatorOption {
 	return Flag("proxy-server", proxy)
 }
 
 // WindowSize is the command line option to set the initial window size.
-func WindowSize(width, height int) ExecPoolOption {
+func WindowSize(width, height int) ExecAllocatorOption {
 	return Flag("window-size", fmt.Sprintf("%d,%d", width, height))
 }
 
 // UserAgent is the command line option to set the default User-Agent
 // header.
-func UserAgent(userAgent string) ExecPoolOption {
+func UserAgent(userAgent string) ExecAllocatorOption {
 	return Flag("user-agent", userAgent)
 }
 
 // NoSandbox is the Chrome comamnd line option to disable the sandbox.
-func NoSandbox(p *ExecPool) {
+func NoSandbox(p *ExecAllocator) {
 	Flag("no-sandbox", true)(p)
 }
 
 // NoFirstRun is the Chrome comamnd line option to disable the first run
 // dialog.
-func NoFirstRun(p *ExecPool) {
+func NoFirstRun(p *ExecAllocator) {
 	Flag("no-first-run", true)(p)
 }
 
 // NoDefaultBrowserCheck is the Chrome comamnd line option to disable the
 // default browser check.
-func NoDefaultBrowserCheck(p *ExecPool) {
+func NoDefaultBrowserCheck(p *ExecAllocator) {
 	Flag("no-default-browser-check", true)(p)
 }
 
 // Headless is the command line option to run in headless mode.
-func Headless(p *ExecPool) {
+func Headless(p *ExecAllocator) {
 	Flag("headless", true)(p)
 }
 
 // DisableGPU is the command line option to disable the GPU process.
-func DisableGPU(p *ExecPool) {
+func DisableGPU(p *ExecAllocator) {
 	Flag("disable-gpu", true)(p)
 }

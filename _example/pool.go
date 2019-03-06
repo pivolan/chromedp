@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	dockerPoolOpts := []chromedp.DockerPoolOption{}
+	dockerAllocatorOpts := []chromedp.DockerAllocatorOption{}
 
-	ctxt, cancel := chromedp.NewPool(context.Background(), chromedp.WithDockerPool(dockerPoolOpts...))
+	ctxt, cancel := chromedp.NewAllocator(context.Background(), chromedp.WithDockerAllocator(dockerAllocatorOpts...))
 	defer cancel()
 
 	task1Context, cancel := chromedp.NewContext(ctxt)

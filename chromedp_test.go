@@ -13,7 +13,7 @@ var (
 
 	poolCtx context.Context
 
-	poolOpts = []ExecPoolOption{
+	poolOpts = []ExecAllocatorOption{
 		NoFirstRun,
 		NoDefaultBrowserCheck,
 		Headless,
@@ -57,7 +57,7 @@ func TestMain(m *testing.M) {
 		poolOpts = append(poolOpts, DisableGPU)
 	}
 
-	ctx, cancel := NewPool(context.Background(), WithExecPool(poolOpts...))
+	ctx, cancel := NewAllocator(context.Background(), WithExecAllocator(poolOpts...))
 	poolCtx = ctx
 
 	code := m.Run()
