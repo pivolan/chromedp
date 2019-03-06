@@ -3,7 +3,9 @@ package chromedp
 import (
 	"context"
 	"log"
+	"os"
 	"testing"
+	"time"
 )
 
 func TestExecPool(t *testing.T) {
@@ -26,4 +28,16 @@ func TestExecPool(t *testing.T) {
 	if got != want {
 		log.Fatalf("wanted %q, got %q", want, got)
 	}
+
+	pool := FromContext(taskCtx).pool.(*ExecPool)
+	tempDir := pool.flags["user-data-dir"].(string)
+
+	cancel()
+	for i := 0; i < 100; i++ {
+		time.Sleep(time.Millisecond)
+		if _, err := os.Lstat(tempDir); os.IsNotExist(err) {
+			return
+		}
+	}
+	t.Fatalf("temporary user data dir %q not deleted", tempDir)
 }

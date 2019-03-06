@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -51,7 +52,10 @@ func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
 		if err != nil {
 			return nil, err
 		}
-		// TODO: remove the dir on context cancel
+		go func() {
+			<-ctx.Done()
+			os.RemoveAll(dataDir)
+		}()
 		p.flags["user-data-dir"] = dataDir
 	}
 
