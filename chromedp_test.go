@@ -70,12 +70,11 @@ func TestMain(m *testing.M) {
 		}
 	*/
 
-	//ctx, cancel := NewPool(context.Background())
-	//poolCtx = ctx
-	poolCtx = context.Background()
+	ctx, cancel := NewPool(context.Background(), WithExecPool())
+	poolCtx = ctx
 
 	code := m.Run()
 
-	//cancel()
+	cancel()
 	os.Exit(code)
 }

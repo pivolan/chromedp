@@ -1,14 +1,10 @@
 package chromedp
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os/exec"
-	"strings"
 )
 
 // Executor
@@ -18,11 +14,9 @@ type Executor interface {
 
 // Context
 type Context struct {
-	// TODO(mvdan): use WithValue instead, for layering?
-	context.Context
-
 	withURL string
 
+	pool    Pool
 	browser *Browser
 	handler *TargetHandler
 
@@ -32,88 +26,54 @@ type Context struct {
 
 // NewContext creates a browser context using the parent context.
 func NewContext(parent context.Context, opts ...ContextOption) (context.Context, context.CancelFunc) {
-	// create root context
 	ctx, cancel := context.WithCancel(parent)
 
-	c := &Context{Context: ctx}
+	c := &Context{}
+	if pc := FromContext(parent); pc != nil {
+		c.pool = pc.pool
+	}
 
-	// apply opts
 	for _, o := range opts {
 		o(c)
 	}
+	if c.pool == nil {
+		WithExecPool()(&c.pool)
+	}
 
-	return c, cancel
+	ctx = context.WithValue(ctx, contextKey{}, c)
+	return ctx, cancel
 }
+
+type contextKey struct{}
 
 // FromContext creates a new browser context from the provided context.
 func FromContext(ctx context.Context) *Context {
-	c, _ := ctx.(*Context)
+	c, _ := ctx.Value(contextKey{}).(*Context)
 	return c
 }
 
 // Run runs the action against the provided browser context.
 func Run(ctx context.Context, action Action) error {
 	c := FromContext(ctx)
-	if c == nil {
+	if c == nil || c.pool == nil {
 		return ErrInvalidContext
 	}
 	if c.browser == nil {
-		if err := c.startProcess(); err != nil {
+		browser, err := c.pool.Allocate(ctx)
+		if err != nil {
 			return err
 		}
+		c.browser = browser
 	}
 	if c.handler == nil {
-		if err := c.newHandler(); err != nil {
+		if err := c.newHandler(ctx); err != nil {
 			return err
 		}
 	}
 	return action.Do(ctx, c.handler)
 }
 
-func (c *Context) startProcess() error {
-	dataDir, err := ioutil.TempDir("", "chromedp-runner")
-	if err != nil {
-		return err
-	}
-	cmd := exec.CommandContext(c.Context, "chromium",
-		"--no-first-run",
-		"--no-default-browser-check",
-		"--remote-debugging-port=0",
-		"--headless",
-		"--user-data-dir="+dataDir,
-	)
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	// Pick up the browser's websocket URL from stderr.
-	wsURL := ""
-	scanner := bufio.NewScanner(stderr)
-	prefix := "DevTools listening on"
-	for scanner.Scan() {
-		line := scanner.Text()
-		if s := strings.TrimPrefix(line, prefix); s != line {
-			wsURL = strings.TrimSpace(s)
-			break
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-	stderr.Close()
-
-	c.browser, err = NewBrowser(wsURL)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c *Context) newHandler() error {
+func (c *Context) newHandler(ctx context.Context) error {
 	// TODO: add RemoteAddr() to the Transport interface?
 	conn := c.browser.conn.(*Conn).Conn
 	addr := conn.RemoteAddr()
@@ -131,7 +91,7 @@ func (c *Context) newHandler() error {
 	if err != nil {
 		return err
 	}
-	if err := c.handler.Run(c.Context); err != nil {
+	if err := c.handler.Run(ctx); err != nil {
 		return err
 	}
 	return nil
