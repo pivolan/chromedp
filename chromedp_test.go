@@ -52,23 +52,16 @@ func TestMain(m *testing.M) {
 			execPath = runner.LookChromeNames("headless_shell")
 		}
 		cliOpts = append(cliOpts, runner.ExecPath(execPath))
-
-		// not explicitly needed to be set, as this vastly speeds up unit tests
-		if noSandbox := os.Getenv("CHROMEDP_NO_SANDBOX"); noSandbox != "false" {
-			cliOpts = append(cliOpts, runner.NoSandbox)
-		}
-		// must be explicitly set, as disabling gpu slows unit tests
-		if disableGPU := os.Getenv("CHROMEDP_DISABLE_GPU"); disableGPU != "" && disableGPU != "false" {
-			cliOpts = append(cliOpts, runner.DisableGPU)
-		}
-
-		if targetTimeout := os.Getenv("CHROMEDP_TARGET_TIMEOUT"); targetTimeout != "" {
-			defaultNewTargetTimeout, _ = time.ParseDuration(targetTimeout)
-		}
-		if defaultNewTargetTimeout == 0 {
-			defaultNewTargetTimeout = 30 * time.Second
-		}
 	*/
+
+	// not explicitly needed to be set, as this vastly speeds up unit tests
+	if noSandbox := os.Getenv("CHROMEDP_NO_SANDBOX"); noSandbox != "false" {
+		poolOpts = append(poolOpts, NoSandbox)
+	}
+	// must be explicitly set, as disabling gpu slows unit tests
+	if disableGPU := os.Getenv("CHROMEDP_DISABLE_GPU"); disableGPU != "" && disableGPU != "false" {
+		poolOpts = append(poolOpts, DisableGPU)
+	}
 
 	ctx, cancel := NewPool(context.Background(), WithExecPool(poolOpts...))
 	poolCtx = ctx
