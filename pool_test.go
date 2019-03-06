@@ -2,7 +2,6 @@ package chromedp
 
 import (
 	"context"
-	"log"
 	"os"
 	"testing"
 )
@@ -22,10 +21,10 @@ func TestExecPool(t *testing.T) {
 	want := "insert"
 	var got string
 	if err := Run(taskCtx, Text("#foo", &got, ByID)); err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	if got != want {
-		log.Fatalf("wanted %q, got %q", want, got)
+		t.Fatalf("wanted %q, got %q", want, got)
 	}
 
 	tempDir := FromContext(taskCtx).browser.UserDataDir

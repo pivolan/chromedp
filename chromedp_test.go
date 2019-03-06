@@ -2,7 +2,7 @@ package chromedp
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"os"
 	"path"
 	"testing"
@@ -39,8 +39,7 @@ func testAllocate(t *testing.T, path string) (_ context.Context, cancel func()) 
 func TestMain(m *testing.M) {
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("could not get working directory: %v", err)
-		os.Exit(1)
+		panic(fmt.Sprintf("could not get working directory: %v", err))
 	}
 	testdataDir = "file://" + path.Join(wd, "testdata")
 
