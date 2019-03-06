@@ -34,13 +34,12 @@ func TestNodes(t *testing.T) {
 		{"#footer", ByID, 1},
 	}
 
-	var err error
 	for i, test := range tests {
 		var nodes []*cdp.Node
-		err = Run(ctx, Nodes(test.sel, &nodes, test.by))
-		if err != nil {
+		if err := Run(ctx, Nodes(test.sel, &nodes, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
+
 		if len(nodes) != test.len {
 			t.Errorf("test %d expected to have %d nodes: got %d", i, test.len, len(nodes))
 		}
@@ -64,13 +63,12 @@ func TestNodeIDs(t *testing.T) {
 		{"#footer", ByID, 1},
 	}
 
-	var err error
 	for i, test := range tests {
 		var ids []cdp.NodeID
-		err = Run(ctx, NodeIDs(test.sel, &ids, test.by))
-		if err != nil {
+		if err := Run(ctx, NodeIDs(test.sel, &ids, test.by)); err != nil {
 			t.Fatal(err)
 		}
+
 		if len(ids) != test.len {
 			t.Errorf("test %d expected to have %d node id's: got %d", i, test.len, len(ids))
 		}
@@ -99,29 +97,25 @@ func TestFocusBlur(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		err = Run(ctx, Focus(test.sel, test.by))
-		if err != nil {
+		if err := Run(ctx, Focus(test.sel, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
 
 		var value string
-		err = Run(ctx, Value(test.sel, &value, test.by))
-		if err != nil {
+		if err := Run(ctx, Value(test.sel, &value, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
+
 		if value != "9999" {
 			t.Errorf("test %d expected value is '9999', got: '%s'", i, value)
 		}
-
-		err = Run(ctx, Blur(test.sel, test.by))
-		if err != nil {
+		if err := Run(ctx, Blur(test.sel, test.by)); err != nil {
+			t.Fatalf("test %d got error: %v", i, err)
+		}
+		if err := Run(ctx, Value(test.sel, &value, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
 
-		err = Run(ctx, Value(test.sel, &value, test.by))
-		if err != nil {
-			t.Fatalf("test %d got error: %v", i, err)
-		}
 		if value != "0" {
 			t.Errorf("test %d expected value is '0', got: '%s'", i, value)
 		}
@@ -146,13 +140,12 @@ func TestDimensions(t *testing.T) {
 		{"#icon-github", ByID, 120, 120},
 	}
 
-	var err error
 	for i, test := range tests {
 		var model *dom.BoxModel
-		err = Run(ctx, Dimensions(test.sel, &model))
-		if err != nil {
+		if err := Run(ctx, Dimensions(test.sel, &model)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
+
 		if model.Height != test.height || model.Width != test.width {
 			t.Errorf("test %d expected %dx%d, got: %dx%d", i, test.width, test.height, model.Height, model.Width)
 		}
@@ -176,13 +169,12 @@ func TestText(t *testing.T) {
 		{"/html/body/form/span[2]", BySearch, "keyword"},
 	}
 
-	var err error
 	for i, test := range tests {
 		var text string
-		err = Run(ctx, Text(test.sel, &text, test.by))
-		if err != nil {
+		if err := Run(ctx, Text(test.sel, &text, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
+
 		if text != test.exp {
 			t.Errorf("test %d expected `%s`, got: %s", i, test.exp, text)
 		}
@@ -228,16 +220,13 @@ func TestClear(t *testing.T) {
 			if val == "" {
 				t.Errorf("expected `%s` to have non empty value", test.sel)
 			}
-
-			err = Run(ctx, Clear(test.sel, test.by))
-			if err != nil {
+			if err := Run(ctx, Clear(test.sel, test.by)); err != nil {
+				t.Fatalf("got error: %v", err)
+			}
+			if err := Run(ctx, Value(test.sel, &val, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
-			err = Run(ctx, Value(test.sel, &val, test.by))
-			if err != nil {
-				t.Fatalf("got error: %v", err)
-			}
 			if val != "" {
 				t.Errorf("expected empty value for `%s`, got: %s", test.sel, val)
 			}
@@ -271,17 +260,15 @@ func TestReset(t *testing.T) {
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
-
-			err = Run(ctx, Reset(test.sel, test.by))
-			if err != nil {
+			if err := Run(ctx, Reset(test.sel, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var value string
-			err = Run(ctx, Value(test.sel, &value, test.by))
-			if err != nil {
+			if err := Run(ctx, Value(test.sel, &value, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
+
 			if value != test.exp {
 				t.Errorf("expected value after reset is %s, got: '%s'", test.exp, value)
 			}
@@ -305,13 +292,12 @@ func TestValue(t *testing.T) {
 		{`#keyword`, ByID},
 	}
 
-	var err error
 	for i, test := range tests {
 		var value string
-		err = Run(ctx, Value(test.sel, &value, test.by))
-		if err != nil {
+		if err := Run(ctx, Value(test.sel, &value, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
+
 		if value != "chromedp" {
 			t.Errorf("test %d expected `chromedp`, got: %s", i, value)
 		}
@@ -344,10 +330,10 @@ func TestSetValue(t *testing.T) {
 			}
 
 			var value string
-			err = Run(ctx, Value(test.sel, &value, test.by))
-			if err != nil {
+			if err := Run(ctx, Value(test.sel, &value, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
+
 			if value != "FOOBAR" {
 				t.Errorf("expected `FOOBAR`, got: %s", value)
 			}
@@ -392,11 +378,9 @@ func TestAttributes(t *testing.T) {
 			}},
 	}
 
-	var err error
 	for i, test := range tests {
 		var attrs map[string]string
-		err = Run(ctx, Attributes(test.sel, &attrs, test.by))
-		if err != nil {
+		if err := Run(ctx, Attributes(test.sel, &attrs, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
 
@@ -433,11 +417,9 @@ func TestAttributesAll(t *testing.T) {
 		},
 	}
 
-	var err error
 	for i, test := range tests {
 		var attrs []map[string]string
-		err = Run(ctx, AttributesAll(test.sel, &attrs, test.by))
-		if err != nil {
+		if err := Run(ctx, AttributesAll(test.sel, &attrs, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
 
@@ -504,8 +486,7 @@ func TestSetAttributes(t *testing.T) {
 			}
 
 			var attrs map[string]string
-			err = Run(ctx, Attributes(test.sel, &attrs, test.by))
-			if err != nil {
+			if err := Run(ctx, Attributes(test.sel, &attrs, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
@@ -534,13 +515,10 @@ func TestAttributeValue(t *testing.T) {
 		{"#icon-github", ByID, "alt", "How people build software"},
 	}
 
-	var err error
 	for i, test := range tests {
 		var value string
 		var ok bool
-
-		err = Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
-		if err != nil {
+		if err := Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
 
@@ -583,10 +561,10 @@ func TestSetAttributeValue(t *testing.T) {
 
 			var value string
 			var ok bool
-			err = Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
-			if err != nil {
+			if err := Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
+
 			if !ok {
 				t.Fatalf("failed to get attribute %s on %s", test.attr, test.sel)
 			}
@@ -626,10 +604,10 @@ func TestRemoveAttribute(t *testing.T) {
 
 			var value string
 			var ok bool
-			err = Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by))
-			if err != nil {
+			if err := Run(ctx, AttributeValue(test.sel, test.attr, &value, &ok, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
+
 			if ok || value != "" {
 				t.Fatalf("expected attribute %s removed from element %s", test.attr, test.sel)
 			}
@@ -661,17 +639,15 @@ func TestClick(t *testing.T) {
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
-
-			err = Run(ctx, WaitVisible("#icon-brankas", ByID))
-			if err != nil {
+			if err := Run(ctx, WaitVisible("#icon-brankas", ByID)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var title string
-			err = Run(ctx, Title(&title))
-			if err != nil {
+			if err := Run(ctx, Title(&title)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
+
 			if title != "this is title" {
 				t.Errorf("expected title to be 'chromedp - Google Search', got: '%s'", title)
 			}
@@ -707,10 +683,10 @@ func TestDoubleClick(t *testing.T) {
 			time.Sleep(50 * time.Millisecond)
 
 			var value string
-			err = Run(ctx, Value("#input1", &value, ByID))
-			if err != nil {
+			if err := Run(ctx, Value("#input1", &value, ByID)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
+
 			if value != "1" {
 				t.Errorf("expected value to be '1', got: '%s'", value)
 			}
@@ -748,10 +724,10 @@ func TestSendKeys(t *testing.T) {
 			}
 
 			var val string
-			err = Run(ctx, Value(test.sel, &val, test.by))
-			if err != nil {
+			if err := Run(ctx, Value(test.sel, &val, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
+
 			if val != test.exp {
 				t.Errorf("expected value %s, got: %s", test.exp, val)
 			}
@@ -775,11 +751,9 @@ func TestScreenshot(t *testing.T) {
 		{"#icon-github", ByID},
 	}
 
-	var err error
 	for i, test := range tests {
 		var buf []byte
-		err = Run(ctx, Screenshot(test.sel, &buf))
-		if err != nil {
+		if err := Run(ctx, Screenshot(test.sel, &buf)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
 
@@ -814,17 +788,15 @@ func TestSubmit(t *testing.T) {
 			if err != nil {
 				t.Fatalf("got error: %v", err)
 			}
-
-			err = Run(ctx, WaitVisible("#icon-brankas", ByID))
-			if err != nil {
+			if err := Run(ctx, WaitVisible("#icon-brankas", ByID)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			var title string
-			err = Run(ctx, Title(&title))
-			if err != nil {
+			if err := Run(ctx, Title(&title)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
+
 			if title != "this is title" {
 				t.Errorf("expected title to be 'this is title', got: '%s'", title)
 			}
@@ -867,16 +839,12 @@ func TestComputedStyle(t *testing.T) {
 					}
 				}
 			}
-
-			err = Run(ctx, Click("#input1", ByID))
-			if err != nil {
+			if err := Run(ctx, Click("#input1", ByID)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
 			time.Sleep(50 * time.Millisecond)
-
-			err = Run(ctx, ComputedStyle(test.sel, &styles, test.by))
-			if err != nil {
+			if err := Run(ctx, ComputedStyle(test.sel, &styles, test.by)); err != nil {
 				t.Fatalf("got error: %v", err)
 			}
 
@@ -981,15 +949,15 @@ func TestFileUpload(t *testing.T) {
 			defer cancel()
 
 			var result string
-			err = Run(ctx, Tasks{
+			if err := Run(ctx, Tasks{
 				Navigate(s.URL),
 				test.a,
 				Click(`input[name="submit"]`),
 				Text(`#result`, &result, ByID, NodeVisible),
-			})
-			if err != nil {
+			}); err != nil {
 				t.Fatalf("test %d expected no error, got: %v", i, err)
 			}
+
 			if result != fmt.Sprintf("%d", len(uploadHTML)) {
 				t.Errorf("test %d expected result to be %d, got: %s", i, len(uploadHTML), result)
 			}
@@ -1011,13 +979,12 @@ func TestInnerHTML(t *testing.T) {
 		{"thead", ByQueryAll},
 		{"thead", ByQuery},
 	}
-	var err error
 	for i, test := range tests {
 		var html string
-		err = Run(ctx, InnerHTML(test.sel, &html))
-		if err != nil {
+		if err := Run(ctx, InnerHTML(test.sel, &html)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
+
 		if html == "" {
 			t.Fatalf("test %d: InnerHTML is empty", i)
 		}
@@ -1038,13 +1005,12 @@ func TestOuterHTML(t *testing.T) {
 		{"thead tr", ByQueryAll},
 		{"thead tr", ByQuery},
 	}
-	var err error
 	for i, test := range tests {
 		var html string
-		err = Run(ctx, OuterHTML(test.sel, &html))
-		if err != nil {
+		if err := Run(ctx, OuterHTML(test.sel, &html)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
+
 		if html == "" {
 			t.Fatalf("test %d: OuterHTML is empty", i)
 		}
@@ -1066,12 +1032,11 @@ func TestScrollIntoView(t *testing.T) {
 		{"img", ByQuery},
 		{"#icon-github", ByID},
 	}
-	var err error
 	for i, test := range tests {
-		err = Run(ctx, ScrollIntoView(test.sel, test.by))
-		if err != nil {
+		if err := Run(ctx, ScrollIntoView(test.sel, test.by)); err != nil {
 			t.Fatalf("test %d got error: %v", i, err)
 		}
+
 		// TODO test scroll event
 	}
 }
