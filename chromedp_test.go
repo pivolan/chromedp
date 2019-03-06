@@ -9,14 +9,15 @@ import (
 )
 
 var (
-	poolCtx context.Context
-
 	testdataDir string
 
-	//cliOpts = []runner.CommandLineOption{
-	//        runner.NoDefaultBrowserCheck,
-	//        runner.NoFirstRun,
-	//}
+	poolCtx context.Context
+
+	poolOpts = []ExecPoolOption{
+		NoFirstRun,
+		NoDefaultBrowserCheck,
+		Headless,
+	}
 )
 
 func testAllocate(t *testing.T, path string) (_ context.Context, cancel func()) {
@@ -70,7 +71,7 @@ func TestMain(m *testing.M) {
 		}
 	*/
 
-	ctx, cancel := NewPool(context.Background(), WithExecPool())
+	ctx, cancel := NewPool(context.Background(), WithExecPool(poolOpts...))
 	poolCtx = ctx
 
 	code := m.Run()

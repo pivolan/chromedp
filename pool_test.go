@@ -9,7 +9,7 @@ import (
 func TestExecPool(t *testing.T) {
 	t.Parallel()
 
-	poolCtx, cancel := NewPool(context.Background(), WithExecPool())
+	poolCtx, cancel := NewPool(context.Background(), WithExecPool(poolOpts...))
 	defer cancel()
 
 	// TODO: test that multiple child contexts are run in different

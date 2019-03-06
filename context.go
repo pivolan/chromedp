@@ -37,7 +37,11 @@ func NewContext(parent context.Context, opts ...ContextOption) (context.Context,
 		o(c)
 	}
 	if c.pool == nil {
-		WithExecPool()(&c.pool)
+		WithExecPool(
+			NoFirstRun,
+			NoDefaultBrowserCheck,
+			Headless,
+		)(&c.pool)
 	}
 
 	ctx = context.WithValue(ctx, contextKey{}, c)
