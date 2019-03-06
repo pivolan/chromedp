@@ -43,16 +43,11 @@ func TestMain(m *testing.M) {
 	}
 	testdataDir = "file://" + path.Join(wd, "testdata")
 
-	/*
-		// its worth noting that newer versions of chrome (64+) run much faster
-		// than older ones -- same for headless_shell ...
-		execPath := os.Getenv("CHROMEDP_TEST_RUNNER")
-		if execPath == "" {
-			execPath = runner.LookChromeNames("headless_shell")
-		}
-		cliOpts = append(cliOpts, runner.ExecPath(execPath))
-	*/
-
+	// it's worth noting that newer versions of chrome (64+) run much faster
+	// than older ones -- same for headless_shell ...
+	if execPath := os.Getenv("CHROMEDP_TEST_RUNNER"); execPath != "" {
+		poolOpts = append(poolOpts, ExecPath(execPath))
+	}
 	// not explicitly needed to be set, as this vastly speeds up unit tests
 	if noSandbox := os.Getenv("CHROMEDP_NO_SANDBOX"); noSandbox != "false" {
 		poolOpts = append(poolOpts, NoSandbox)

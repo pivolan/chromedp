@@ -44,6 +44,9 @@ func WithExecPool(opts ...ExecPoolOption) func(*Pool) {
 		for _, o := range opts {
 			o(ep)
 		}
+		if ep.execPath == "" {
+			ep.execPath = findExecPath()
+		}
 		*p = ep
 	}
 }
@@ -51,10 +54,10 @@ func WithExecPool(opts ...ExecPoolOption) func(*Pool) {
 type ExecPoolOption func(*ExecPool)
 
 type ExecPool struct {
+	execPath  string
 	initFlags map[string]interface{}
 
-	dataDirs map[*Browser]string
-	wg       sync.WaitGroup
+	wg sync.WaitGroup
 }
 
 func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
@@ -94,7 +97,6 @@ func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
 
 	flags["remote-debugging-port"] = "0"
 
-	prog := "chromium"
 	args := []string{}
 	for name, value := range flags {
 		switch value := value.(type) {
@@ -109,7 +111,7 @@ func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
 		}
 	}
 
-	cmd = exec.CommandContext(ctx, prog, args...)
+	cmd = exec.CommandContext(ctx, p.execPath, args...)
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return nil, err
@@ -144,6 +146,51 @@ func (p *ExecPool) Allocate(ctx context.Context) (*Browser, error) {
 
 func (p *ExecPool) Wait() {
 	p.wg.Wait()
+}
+
+func ExecPath(path string) ExecPoolOption {
+	return func(p *ExecPool) {
+		if fullPath, _ := exec.LookPath(path); fullPath != "" {
+			// Convert to an absolute path if possible, to avoid
+			// repeated LookPath calls in each Allocate.
+			path = fullPath
+		}
+		p.execPath = path
+	}
+}
+
+// findExecPath tries to find the Chrome browser somewhere in the current
+// system. It performs a rather agressive search, which is the same in all
+// systems. That may make it a bit slow, but it will only be run when creating a
+// new ExecPool.
+func findExecPath() string {
+	for _, path := range [...]string{
+		// Unix-like
+		"headless_shell",
+		"chromium",
+		"chromium-browser",
+		"google-chrome",
+		"google-chrome-stable",
+		"google-chrome-beta",
+		"google-chrome-unstable",
+		"/usr/bin/google-chrome",
+
+		// Windows
+		"chrome",
+		"chrome.exe", // in case PATHEXT is misconfigured
+		`C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`,
+
+		// Mac
+		`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`,
+	} {
+		found, err := exec.LookPath(path)
+		if err == nil {
+			return found
+		}
+	}
+	// Fall back to something simple and sensible, to give a useful error
+	// message.
+	return "google-chrome"
 }
 
 // Flag is a generic command line option to pass a flag to Chrome. If the value
