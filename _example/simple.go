@@ -2,26 +2,35 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"time"
 
 	"github.com/chromedp/chromedp"
 )
 
 func main() {
-	ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithURL("https://github.com/"))
+	// create a new context
+	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
-	if err := chromedp.Run(ctx, myTask()); err != nil {
+	// grab the title
+	var title string
+	if err := chromedp.Run(ctx, grabTitle(&title)); err != nil {
 		log.Fatal(err)
 	}
-	// TODO: make this unnecessary
+
+	// print it
+	fmt.Println(title)
+
+	// ensure all resources are cleaned up
 	cancel()
-	time.Sleep(time.Millisecond)
+	chromedp.FromContext(ctx).Wait()
 }
 
-func myTask() chromedp.Tasks {
+func grabTitle(title *string) chromedp.Tasks {
 	return []chromedp.Action{
-		chromedp.Sleep(10 * time.Second),
+		chromedp.Navigate("https://github.com/"),
+		chromedp.WaitVisible("#start-of-content", chromedp.ByID),
+		chromedp.Title(title),
 	}
 }

@@ -15,12 +15,15 @@ func TestExecAllocator(t *testing.T) {
 	// TODO: test that multiple child contexts are run in different
 	// processes and browsers.
 
-	taskCtx, cancel := NewContext(poolCtx, WithURL(testdataDir+"/form.html"))
+	taskCtx, cancel := NewContext(poolCtx)
 	defer cancel()
 
 	want := "insert"
 	var got string
-	if err := Run(taskCtx, Text("#foo", &got, ByID)); err != nil {
+	if err := Run(taskCtx, Tasks{
+		Navigate(testdataDir + "/form.html"),
+		Text("#foo", &got, ByID),
+	}); err != nil {
 		t.Fatal(err)
 	}
 	if got != want {

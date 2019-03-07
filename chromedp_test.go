@@ -21,7 +21,11 @@ var (
 )
 
 func testAllocate(t *testing.T, path string) (_ context.Context, cancel func()) {
-	ctx, cancel := NewContext(poolCtx, WithURL(testdataDir+"/"+path))
+	ctx, cancel := NewContext(poolCtx)
+
+	if err := Run(ctx, Navigate(testdataDir+"/"+path)); err != nil {
+		t.Fatal(err)
+	}
 
 	//if err := WithLogf(t.Logf)(c.c); err != nil {
 	//        t.Fatalf("could not set logf: %v", err)

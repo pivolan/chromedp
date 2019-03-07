@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"net/url"
 )
 
 // Executor
@@ -15,8 +14,6 @@ type Executor interface {
 // Context
 type Context struct {
 	Allocator Allocator
-
-	withURL string
 
 	browser *Browser
 	handler *TargetHandler
@@ -90,7 +87,7 @@ func (c *Context) newHandler(ctx context.Context) error {
 	// TODO: add RemoteAddr() to the Transport interface?
 	conn := c.browser.conn.(*Conn).Conn
 	addr := conn.RemoteAddr()
-	url := "http://" + addr.String() + "/json/new?" + url.QueryEscape(c.withURL)
+	url := "http://" + addr.String() + "/json/new"
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -116,8 +113,3 @@ type withWebsocketURL struct {
 
 // ContextOption
 type ContextOption func(*Context)
-
-// WithURL
-func WithURL(urlstr string) ContextOption {
-	return func(c *Context) { c.withURL = urlstr }
-}
