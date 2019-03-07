@@ -8,21 +8,20 @@ import (
 )
 
 func main() {
-	ctxt, cancel := chromedp.NewContext(context.Background())
+	// first tab
+	ctx1, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
 	// create new tab
-	tabContext, _ := chromedp.NewContext(ctxt)
+	ctx2, _ := chromedp.NewContext(ctx1)
 
 	// runs in first tab
-	err := chromedp.Run(ctxt, myTask())
-	if err != nil {
+	if err := chromedp.Run(ctx1, myTask()); err != nil {
 		log.Fatal(err)
 	}
 
 	// runs in second tab
-	err = chromedp.Run(tabContext, myTask())
-	if err != nil {
+	if err := chromedp.Run(ctx2, myTask()); err != nil {
 		log.Fatal(err)
 	}
 }
