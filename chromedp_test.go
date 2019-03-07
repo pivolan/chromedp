@@ -11,9 +11,9 @@ import (
 var (
 	testdataDir string
 
-	poolCtx context.Context
+	allocCtx context.Context
 
-	poolOpts = []ExecAllocatorOption{
+	allocOpts = []ExecAllocatorOption{
 		NoFirstRun,
 		NoDefaultBrowserCheck,
 		Headless,
@@ -21,7 +21,7 @@ var (
 )
 
 func testAllocate(t *testing.T, path string) (_ context.Context, cancel func()) {
-	ctx, cancel := NewContext(poolCtx)
+	ctx, cancel := NewContext(allocCtx)
 
 	if err := Run(ctx, Navigate(testdataDir+"/"+path)); err != nil {
 		t.Fatal(err)
@@ -50,19 +50,19 @@ func TestMain(m *testing.M) {
 	// it's worth noting that newer versions of chrome (64+) run much faster
 	// than older ones -- same for headless_shell ...
 	if execPath := os.Getenv("CHROMEDP_TEST_RUNNER"); execPath != "" {
-		poolOpts = append(poolOpts, ExecPath(execPath))
+		allocOpts = append(allocOpts, ExecPath(execPath))
 	}
 	// not explicitly needed to be set, as this vastly speeds up unit tests
 	if noSandbox := os.Getenv("CHROMEDP_NO_SANDBOX"); noSandbox != "false" {
-		poolOpts = append(poolOpts, NoSandbox)
+		allocOpts = append(allocOpts, NoSandbox)
 	}
 	// must be explicitly set, as disabling gpu slows unit tests
 	if disableGPU := os.Getenv("CHROMEDP_DISABLE_GPU"); disableGPU != "" && disableGPU != "false" {
-		poolOpts = append(poolOpts, DisableGPU)
+		allocOpts = append(allocOpts, DisableGPU)
 	}
 
-	ctx, cancel := NewAllocator(context.Background(), WithExecAllocator(poolOpts...))
-	poolCtx = ctx
+	ctx, cancel := NewAllocator(context.Background(), WithExecAllocator(allocOpts...))
+	allocCtx = ctx
 
 	code := m.Run()
 
