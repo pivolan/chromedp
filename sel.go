@@ -311,14 +311,6 @@ func NodeVisible(s *Selector) {
 		}
 
 		// check offsetParent
-		var res bool
-		err = EvaluateAsDevTools(fmt.Sprintf(visibleJS, n.FullXPath()), &res).Do(ctxt, h)
-		if err != nil {
-			return err
-		}
-		if !res {
-			return ErrNotVisible
-		}
 		return nil
 	}))(s)
 }
@@ -337,14 +329,6 @@ func NodeNotVisible(s *Selector) {
 		}
 
 		// check offsetParent
-		var res bool
-		err = EvaluateAsDevTools(fmt.Sprintf(visibleJS, n.FullXPath()), &res).Do(ctxt, h)
-		if err != nil {
-			return err
-		}
-		if res {
-			return ErrVisible
-		}
 		return nil
 	}))(s)
 }

@@ -461,7 +461,8 @@ func Screenshot(sel interface{}, picbuf *[]byte, opts ...QueryOption) Action {
 		var pos []int
 		err = EvaluateAsDevTools(fmt.Sprintf(scrollJS, int64(box.Margin[0]), int64(box.Margin[1])), &pos).Do(ctxt, h)
 		if err != nil {
-			return err
+
+			return fmt.Errorf("Screenshot, eval err in scrollJS, err: %s ", err.Error())
 		}
 
 		// take page screenshot
